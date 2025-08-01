@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sun, Moon, Menu, X } from 'lucide-react';
+import { Sun, Moon, Menu, X, ShoppingCart } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 const Navbar = () => {
@@ -68,8 +68,11 @@ const Navbar = () => {
     {/* <nav className="fixed top-0 left-0 w-full bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100 shadow-md z-50 transition-colors"> */}
       <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
         {/* Logo */}
-        <div className="text-xl font-bold text-indigo-500 dark:text-indigo-400">
-          <Link to="/">Product Store</Link>
+        <div className="flex items-center space-x-2 mb-4">
+          <div className="w-8 h-8 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
+            <ShoppingCart className="w-5 h-5 text-white" />
+          </div>
+          <Link className="text-xl font-bold text-indigo-500 dark:text-indigo-400" to="/">StoreHub</Link>
         </div>
 
         {/* Desktop Links */}
