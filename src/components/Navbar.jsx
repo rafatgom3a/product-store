@@ -80,7 +80,7 @@ const Navbar = () => {
 
         {/* Actions */}
         <div className="flex items-center space-x-4">
-          <Link
+          {/* <Link
             to="/signin"
             className="hidden md:inline-block px-4 py-1 border rounded transition border-gray-300 text-gray-900 bg-white hover:bg-gray-100 dark:border-gray-700 dark:text-gray-100 dark:bg-gray-900 dark:hover:bg-gray-800"
           >
@@ -91,7 +91,21 @@ const Navbar = () => {
             className="hidden md:inline-block px-4 py-1 rounded bg-indigo-600 text-white hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-600 transition"
           >
             Sign Up
+          </Link> */}
+          {/* Cart Icon */}
+          <Link
+            to="/cart"
+            className="relative hover:text-indigo-500 transition"
+            aria-label="Cart"
+          >
+            <ShoppingCart size={22} />
+            {/* item count */}
+            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+              3
+            </span>
           </Link>
+
+          {/* Theme Toggle */}
           <button onClick={toggleTheme} className="hover:text-indigo-400 transition">
             {darkMode ? <Sun size={20} /> : <Moon size={20} />}
           </button>
@@ -100,6 +114,7 @@ const Navbar = () => {
           <button className="md:hidden" onClick={toggleMenu}>
             {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
+
         </div>
       </div>
 
