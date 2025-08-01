@@ -1,17 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sun, Moon } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 const Navbar = () => {
   const [darkMode, setDarkMode] = useState(true);
+  const location = useLocation();
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light') {
+      setDarkMode(false);
+      document.documentElement.classList.remove('dark');
+    } else {
+      setDarkMode(true);
+      document.documentElement.classList.add('dark');
+    }
+  }, []);
 
   const toggleTheme = () => {
     const newTheme = !darkMode;
     setDarkMode(newTheme);
     document.documentElement.classList.toggle('dark');
-
     localStorage.setItem('theme', newTheme ? 'dark' : 'light');
   };
+
+  const isActive = (path) => location.pathname === path;
 
   return (
     <nav className="bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100 shadow-md">
@@ -21,15 +34,35 @@ const Navbar = () => {
           <Link to="/">Product Store</Link>
         </div>
 
-        {/* Links */}
+        {/* Navigation Links */}
         <div className="hidden md:flex space-x-6 text-sm font-medium">
-          <Link to="/" className="hover:text-indigo-400 transition">Home</Link>
-          <Link to="/products" className="hover:text-indigo-400 transition">Products</Link>
-          <Link to="/about" className="hover:text-indigo-400 transition">About Us</Link>
-          <Link to="/contact" className="hover:text-indigo-400 transition">Contact Us</Link>
+          <Link
+            to="/"
+            className={`transition hover:text-indigo-400 ${isActive('/') ? 'underline underline-offset-4 decoration-2' : ''}`}
+          >
+            Home
+          </Link>
+          <Link
+            to="/products"
+            className={`transition hover:text-indigo-400 ${isActive('/products') ? 'underline underline-offset-4 decoration-2' : ''}`}
+          >
+            Products
+          </Link>
+          <Link
+            to="/about"
+            className={`transition hover:text-indigo-400 ${isActive('/about') ? 'underline underline-offset-4 decoration-2' : ''}`}
+          >
+            About Us
+          </Link>
+          <Link
+            to="/contact"
+            className={`transition hover:text-indigo-400 ${isActive('/contact') ? 'underline underline-offset-4 decoration-2' : ''}`}
+          >
+            Contact Us
+          </Link>
         </div>
 
-        {/* Actions */}
+        {/* Auth Actions + Theme Toggle */}
         <div className="flex items-center space-x-4">
           <Link
             to="/signin"
