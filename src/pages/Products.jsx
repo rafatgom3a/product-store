@@ -14,6 +14,9 @@ const Products = () => {
   const [maxPrice, setMaxPrice] = useState('');
   const [minRating, setMinRating] = useState(0);
   const [sort, setSort] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const ITEMS_PER_PAGE = 9;
 
   useEffect(() => {
     setIsLoading(true);
@@ -75,6 +78,7 @@ const Products = () => {
     }
 
     setFiltered(result);
+    setCurrentPage(1); // Reset to first page on filter change
   }, [products, search, selectedCategories, minPrice, maxPrice, minRating, sort]);
 
   const handleCategoryChange = (category) => {
@@ -83,6 +87,18 @@ const Products = () => {
         ? prev.filter((c) => c !== category)
         : [...prev, category]
     );
+  };
+
+  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+  const paginatedProducts = filtered.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
   };
 
   if (isLoading) {
@@ -134,7 +150,7 @@ const Products = () => {
               </div>
             </div>
 
-            {/* Price */}
+            {/* Price Range */}
             <div>
               <h3 className="font-semibold mb-2">Price Range</h3>
               <div className="flex space-x-2">
@@ -199,16 +215,49 @@ const Products = () => {
             </p>
           </div>
 
-          {filtered.length === 0 ? (
+          {paginatedProducts.length === 0 ? (
             <div className="text-center py-20 bg-white dark:bg-gray-900 rounded-lg">
               <p className="text-lg">No products match the selected filters.</p>
             </div>
           ) : (
-            <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-              {filtered.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
+            <>
+              <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                {paginatedProducts.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+
+              {/* Pagination Controls */}
+              <div className="mt-10 flex justify-center space-x-2">
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="px-4 py-2 bg-gray-300 dark:bg-gray-700 rounded disabled:opacity-50"
+                >
+                  Prev
+                </button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => handlePageChange(page)}
+                    className={`px-4 py-2 rounded ${
+                      currentPage === page
+                        ? 'bg-white dark:bg-gray-900 text-black dark:text-white'
+                        : 'bg-gray-200 dark:bg-gray-700'
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="px-4 py-2 bg-gray-300 dark:bg-gray-700 rounded disabled:opacity-50"
+                >
+                  Next
+                </button>
+              </div>
+            </>
           )}
         </section>
       </div>
