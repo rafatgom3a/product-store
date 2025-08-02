@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Sun, Moon, Menu, X, ShoppingCart } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
+import { useCart } from '../contexts/CartContext'
 
 const Navbar = () => {
   const [darkMode, setDarkMode] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+
+  const { cartItems } = useCart()
+  const totalItems = cartItems?.length || 0
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
@@ -99,10 +103,13 @@ const Navbar = () => {
             aria-label="Cart"
           >
             <ShoppingCart size={22} />
-            {/* item count */}
-            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
-              3
-            </span>
+            
+            {/* Conditionally show badge if cart has items */}
+            {totalItems > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+                {totalItems}
+              </span>
+            )}
           </Link>
 
           {/* Theme Toggle */}
@@ -124,7 +131,7 @@ const Navbar = () => {
           <div className="flex flex-col space-y-3 text-sm font-medium">
             {navLinks}
           </div>
-          <div className="flex flex-col mt-4 space-y-2">
+          {/* <div className="flex flex-col mt-4 space-y-2">
             <Link
               to="/signin"
               onClick={closeMenu}
@@ -139,7 +146,7 @@ const Navbar = () => {
             >
               Sign Up
             </Link>
-          </div>
+          </div> */}
         </div>
       )}
     </nav>

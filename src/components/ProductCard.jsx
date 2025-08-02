@@ -1,7 +1,10 @@
 import { Link } from 'react-router-dom';
 import { ShoppingCart, Star } from 'lucide-react';
+import { useCart } from '../contexts/CartContext';
 
 const ProductCard = ({ product, onAddToCart }) => {
+  const { addToCart } = useCart();
+
   const renderStars = () => {
     const stars = [];
     const fullStars = Math.floor(product.rating);
@@ -58,15 +61,19 @@ const ProductCard = ({ product, onAddToCart }) => {
           View Details
         </Link>
         <button
+          type="button"
           onClick={(e) => {
-            e.preventDefault(); // Prevent Link navigation
-            onAddToCart(product);
+            e.preventDefault();
+            e.stopPropagation();
+            addToCart(product);
+            onAddToCart?.(product);
           }}
           className="flex items-center gap-1 px-3 py-1 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded transition"
         >
           <ShoppingCart size={16} />
           Add to Cart
         </button>
+
       </div>
     </div>
   );
