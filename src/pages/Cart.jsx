@@ -1,5 +1,6 @@
 import { useCart } from '../contexts/CartContext';
 import { Minus, Plus, Trash2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Cart = () => {
   const { cartItems, removeFromCart, increaseQuantity, decreaseQuantity, getTotalItems } = useCart();
@@ -10,7 +11,30 @@ const Cart = () => {
             <h1 className="text-2xl font-bold mb-6">🛒 Your Shopping Cart</h1>
 
             {cartItems.length === 0 ? (
-                <p className="text-gray-600 text-center">Your cart is empty.</p>
+            <div className="flex flex-col items-center justify-center py-12">
+                <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-24 w-24 text-gray-300 mb-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                >
+                <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1}
+                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                />
+                </svg>
+                <h3 className="text-xl font-medium text-gray-500 mb-2">Your cart is empty</h3>
+                <p className="text-gray-400 mb-6">Looks like you haven't added any items yet</p>
+                <Link
+                to="/products"
+                className="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+                >
+                Browse Products
+                </Link>
+            </div>
             ) : (
                 <div className="space-y-4">
                 {cartItems.map((item) => (

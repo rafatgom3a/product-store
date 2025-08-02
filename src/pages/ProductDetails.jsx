@@ -1,11 +1,16 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { fetchProductById } from '../services/fetchProductById';
-import { Star } from 'lucide-react';
+import { Star, ShoppingCart } from 'lucide-react';
+import { useCart } from '../contexts/CartContext';
+
 
 const ProductDetails = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
+
+  const { addToCart } = useCart();
+
 
   useEffect(() => {
     fetchProductById(id).then(setProduct);
@@ -65,9 +70,18 @@ const ProductDetails = () => {
                 <p><strong>Minimum Order:</strong> {product.minimumOrderQuantity}</p>
             </div>
 
-            <button className="mt-4 px-6 py-2 bg-blue-600 text-white font-semibold rounded hover:bg-blue-700 transition">
-                Add to Cart
-            </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        addToCart(product);
+                      }}
+                      className="flex items-center gap-1 px-3 py-1 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded transition"
+                    >
+                      <ShoppingCart size={16} />
+                      Add to Cart
+                    </button>
             </div>
         </div>
 
