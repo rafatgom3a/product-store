@@ -4,7 +4,6 @@ import { fetchProductById } from '../services/fetchProductById';
 import { Star, ShoppingCart } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 
-
 const ProductDetails = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
@@ -70,20 +69,20 @@ const ProductDetails = () => {
                 <p><strong>Minimum Order:</strong> {product.minimumOrderQuantity}</p>
             </div>
 
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        addToCart(product);
-                      }}
-                      className="flex items-center gap-1 px-3 py-1 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded transition"
-                    >
-                      <ShoppingCart size={16} />
-                      Add to Cart
-                    </button>
-            </div>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                addToCart(product);
+              }}
+              className="flex items-center gap-1 px-3 py-1 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded transition"
+            >
+              <ShoppingCart size={16} />
+              Add to Cart
+            </button>
         </div>
+       </div>
 
         {/* Reviews */}
         <div className="mt-8">

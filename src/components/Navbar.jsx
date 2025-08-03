@@ -43,6 +43,7 @@ const Navbar = () => {
       >
         Home
       </Link>
+
       <Link
         to="/products"
         onClick={closeMenu}
@@ -50,6 +51,7 @@ const Navbar = () => {
       >
         Products
       </Link>
+
       <Link
         to="/about"
         onClick={closeMenu}
@@ -57,6 +59,7 @@ const Navbar = () => {
       >
         About Us
       </Link>
+
       <Link
         to="/contact"
         onClick={closeMenu}
@@ -106,7 +109,6 @@ const Navbar = () => {
           >
             <ShoppingCart size={22} />
             
-            {/* Conditionally show badge if cart has items */}
             {totalItems > 0 && (
               <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
                 {totalItems}

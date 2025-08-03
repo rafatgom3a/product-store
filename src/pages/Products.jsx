@@ -78,7 +78,7 @@ const Products = () => {
     }
 
     setFiltered(result);
-    setCurrentPage(1); // Reset to first page on filter change
+    setCurrentPage(1);
   }, [products, search, selectedCategories, minPrice, maxPrice, minRating, sort]);
 
   const handleCategoryChange = (category) => {

@@ -36,8 +36,8 @@ const Footer = () => {
           <Link to="/returns" className="hover:underline">Return Policy</Link>
         </nav>
 
-        {/* Social Links */}
-                    <div>
+        {/* Contact Information Section */}
+            <div>
               <h5 className="font-semibold mb-4">Connect With Us</h5>
               <p className="text-sm text-gray-400 mb-4">
                 Follow us for the latest updates and exclusive offers
