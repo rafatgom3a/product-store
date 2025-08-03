@@ -22,6 +22,17 @@ const Navbar = () => {
     }
   }, []);
 
+  useEffect(() => {
+    const navbar = document.querySelector('nav');
+    if (navbar) {
+      const navbarHeight = navbar.offsetHeight;
+      document.body.style.paddingTop = `${navbarHeight}px`;
+      return () => {
+        document.body.style.paddingTop = '0';
+      };
+    }
+  }, []);
+
   const toggleTheme = () => {
     const newTheme = !darkMode;
     setDarkMode(newTheme);
@@ -71,8 +82,7 @@ const Navbar = () => {
   );
 
   return (
-    <nav className="bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100 shadow-md z-50 relative">
-    {/* <nav className="fixed top-0 left-0 w-full bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100 shadow-md z-50 transition-colors"> */}
+    <nav className="fixed top-0 left-0 w-full bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100 shadow-md z-50">
       <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center space-x-2 mb-4 group">
