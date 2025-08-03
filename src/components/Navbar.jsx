@@ -72,12 +72,14 @@ const Navbar = () => {
     {/* <nav className="fixed top-0 left-0 w-full bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100 shadow-md z-50 transition-colors"> */}
       <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
         {/* Logo */}
-        <div className="flex items-center space-x-2 mb-4">
-          <div className="w-8 h-8 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
+        <Link to="/" className="flex items-center space-x-2 mb-4 group">
+          <div className="w-8 h-8 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center transition-transform group-hover:scale-105 duration-300">
             <ShoppingCart className="w-5 h-5 text-white" />
           </div>
-          <Link className="text-xl font-bold text-indigo-500 dark:text-indigo-400" to="/">StoreHub</Link>
-        </div>
+          <span className="text-xl font-bold text-indigo-500 dark:text-indigo-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition-colors duration-300">
+            StoreHub
+          </span>
+        </Link>
 
         {/* Desktop Links */}
         <div className="hidden md:flex space-x-6 text-sm font-medium">{navLinks}</div>

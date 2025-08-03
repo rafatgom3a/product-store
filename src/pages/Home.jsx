@@ -60,9 +60,9 @@ function Home() {
     ))
   );
 
-  const handleStartShopping = () => {
-    document.getElementById('featured-products')?.scrollIntoView({ behavior: 'smooth' });
-  };
+    const handleStartShopping = () => {
+      window.location.href = '/products';
+    };
 
   return (
     <div className="w-full min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-900 dark:to-blue-900 text-gray-800 dark:text-gray-200">
