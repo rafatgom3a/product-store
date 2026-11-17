@@ -1,14 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { fetchProducts } from '../services/fetchProducts';
+import { fetchCategories } from '../services/fetchCategories';
 import ProductCard from '../components/ProductCard';
+
+const ITEMS_PER_PAGE = 9;
 
 const Products = () => {
   const [products, setProducts] = useState([]);
-  const [filtered, setFiltered] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const [search, setSearch] = useState('');
   const [categories, setCategories] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [search, setSearch] = useState('');
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
@@ -16,249 +19,84 @@ const Products = () => {
   const [sort, setSort] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
 
-  const ITEMS_PER_PAGE = 9;
-
   useEffect(() => {
-    setIsLoading(true);
-    fetchProducts()
-      .then((data) => {
-        setProducts(data);
-        setFiltered(data);
-        setCategories([...new Set(data.map((p) => p.category))]);
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        console.error('Error fetching products:', error);
-        setIsLoading(false);
-      });
+    fetchCategories()
+      .then(setCategories)
+      .catch((err) => console.error('Could not load categories:', err));
   }, []);
 
+  const query = useMemo(() => ({
+    page: currentPage,
+    limit: ITEMS_PER_PAGE,
+    ...(search.trim() ? { search: search.trim() } : {}),
+    ...(selectedCategories.length ? { category: selectedCategories.join(',') } : {}),
+    ...(minPrice !== '' ? { minPrice } : {}),
+    ...(maxPrice !== '' ? { maxPrice } : {}),
+    ...(minRating > 0 ? { minRating } : {}),
+    ...(sort ? { sort } : {}),
+  }), [currentPage, search, selectedCategories, minPrice, maxPrice, minRating, sort]);
+
   useEffect(() => {
-    let result = [...products];
+    let cancelled = false;
+    setIsLoading(true);
+    setError('');
+    fetchProducts(query)
+      .then((data) => {
+        if (cancelled) return;
+        setProducts(data.products || []);
+        setTotal(data.total || 0);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        console.error('Error fetching products:', err);
+        setError(err.response?.data?.message || 'Could not load products. Check that the StoreHub backend is running.');
+        setProducts([]);
+        setTotal(0);
+      })
+      .finally(() => { if (!cancelled) setIsLoading(false); });
+    return () => { cancelled = true; };
+  }, [query]);
 
-    if (search.trim()) {
-      result = result.filter(
-        (p) =>
-          p.title.toLowerCase().includes(search.toLowerCase()) ||
-          p.description.toLowerCase().includes(search.toLowerCase())
-      );
-    }
-
-    if (selectedCategories.length > 0) {
-      result = result.filter((p) => selectedCategories.includes(p.category));
-    }
-
-    if (minPrice !== '') {
-      result = result.filter((p) => p.price >= parseFloat(minPrice));
-    }
-
-    if (maxPrice !== '') {
-      result = result.filter((p) => p.price <= parseFloat(maxPrice));
-    }
-
-    if (minRating > 0) {
-      result = result.filter((p) => {
-        const rating = p.rating?.rate ?? p.rating;
-        return rating >= minRating;
-      });
-    }
-
-    if (sort === 'priceLow') {
-      result.sort((a, b) => a.price - b.price);
-    } else if (sort === 'priceHigh') {
-      result.sort((a, b) => b.price - a.price);
-    } else if (sort === 'ratingHigh') {
-      result.sort((a, b) => {
-        const ratingA = a.rating?.rate ?? a.rating ?? 0;
-        const ratingB = b.rating?.rate ?? b.rating ?? 0;
-        return ratingB - ratingA;
-      });
-    } else if (sort === 'newest') {
-      result.sort((a, b) => b.id - a.id);
-    }
-
-    setFiltered(result);
+  const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
+  const handleCategoryChange = (slug) => {
     setCurrentPage(1);
-  }, [products, search, selectedCategories, minPrice, maxPrice, minRating, sort]);
-
-  const handleCategoryChange = (category) => {
-    setSelectedCategories((prev) =>
-      prev.includes(category)
-        ? prev.filter((c) => c !== category)
-        : [...prev, category]
-    );
+    setSelectedCategories((previous) => previous.includes(slug)
+      ? previous.filter((item) => item !== slug)
+      : [...previous, slug]);
+  };
+  const updateFilter = (setter) => (event) => {
+    setter(event.target.value);
+    setCurrentPage(1);
+  };
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) setCurrentPage(page);
   };
 
-  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
-  const paginatedProducts = filtered.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
-
-  const handlePageChange = (newPage) => {
-    if (newPage >= 1 && newPage <= totalPages) {
-      setCurrentPage(newPage);
-    }
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-800">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-blue-500 border-dashed rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-lg font-semibold text-gray-700 dark:text-gray-300">Fetching products...</p>
-        </div>
-      </div>
-    );
+  if (isLoading && products.length === 0) {
+    return <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-800"><div className="text-center"><div className="w-12 h-12 border-4 border-blue-500 border-dashed rounded-full animate-spin mx-auto mb-4" /><p className="text-lg font-semibold text-gray-700 dark:text-gray-300">Fetching products...</p></div></div>;
   }
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white px-6 py-12">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
-        {/* Filters Sidebar */}
         <aside className="md:col-span-1">
-          <div className="sticky top-6 p-6 bg-white dark:bg-gray-900 rounded-2xl shadow-lg space-y-6 h-[calc(100vh-3rem)] overflow-y-auto">
+          <div className="sticky top-6 p-6 bg-white dark:bg-gray-900 rounded-2xl shadow-lg space-y-6 max-h-[calc(100vh-3rem)] overflow-y-auto">
             <h2 className="text-xl font-bold mb-2">Filters</h2>
-
-            {/* Search */}
-            <div>
-              <label className="block text-sm font-semibold mb-1">Search</label>
-              <input
-                type="text"
-                placeholder="Search products..."
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-
-            {/* Categories */}
-            <div>
-              <h3 className="font-semibold mb-2">Category</h3>
-              <div className="space-y-1 max-h-40 overflow-y-auto">
-                {categories.map((cat) => (
-                  <label key={cat} className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      value={cat}
-                      checked={selectedCategories.includes(cat)}
-                      onChange={() => handleCategoryChange(cat)}
-                    />
-                    <span className="capitalize">{cat}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Price Range */}
-            <div>
-              <h3 className="font-semibold mb-2">Price Range</h3>
-              <div className="flex space-x-2">
-                <input
-                  type="number"
-                  placeholder="Min"
-                  className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-700"
-                  value={minPrice}
-                  onChange={(e) => setMinPrice(e.target.value)}
-                />
-                <input
-                  type="number"
-                  placeholder="Max"
-                  className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-700"
-                  value={maxPrice}
-                  onChange={(e) => setMaxPrice(e.target.value)}
-                />
-              </div>
-            </div>
-
-            {/* Rating */}
-            <div>
-              <label className="block text-sm font-semibold mb-1">Minimum Rating</label>
-              <select
-                className="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600"
-                value={minRating}
-                onChange={(e) => setMinRating(Number(e.target.value))}
-              >
-                <option value={0}>Any</option>
-                <option value={1}>1★ & up</option>
-                <option value={2}>2★ & up</option>
-                <option value={3}>3★ & up</option>
-                <option value={4}>4★ & up</option>
-                <option value={5}>5★ only</option>
-              </select>
-            </div>
-
-            {/* Sort */}
-            <div>
-              <label className="block text-sm font-semibold mb-1">Sort By</label>
-              <select
-                className="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600"
-                value={sort}
-                onChange={(e) => setSort(e.target.value)}
-              >
-                <option value="">Default</option>
-                <option value="priceLow">Price: Low to High</option>
-                <option value="priceHigh">Price: High to Low</option>
-                <option value="ratingHigh">Rating: High to Low</option>
-                <option value="newest">Newest First</option>
-              </select>
-            </div>
+            <div><label className="block text-sm font-semibold mb-1">Search</label><input type="text" placeholder="Search products..." className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700" value={search} onChange={updateFilter(setSearch)} /></div>
+            <div><h3 className="font-semibold mb-2">Category</h3><div className="space-y-2 max-h-40 overflow-y-auto">{categories.length ? categories.map((category) => <label key={category.id || category._id} className="flex items-center gap-2"><input type="checkbox" checked={selectedCategories.includes(category.slug)} onChange={() => handleCategoryChange(category.slug)} /><span className="capitalize">{category.name}</span></label>) : <p className="text-sm text-gray-500">No categories yet.</p>}</div></div>
+            <div><h3 className="font-semibold mb-2">Price Range</h3><div className="flex gap-2"><input type="number" min="0" placeholder="Min" className="w-full min-w-0 px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-700" value={minPrice} onChange={updateFilter(setMinPrice)} /><input type="number" min="0" placeholder="Max" className="w-full min-w-0 px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-700" value={maxPrice} onChange={updateFilter(setMaxPrice)} /></div></div>
+            <div><label className="block text-sm font-semibold mb-1">Minimum Rating</label><select className="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600" value={minRating} onChange={(event) => { setMinRating(Number(event.target.value)); setCurrentPage(1); }}><option value={0}>Any</option><option value={1}>1★ & up</option><option value={2}>2★ & up</option><option value={3}>3★ & up</option><option value={4}>4★ & up</option><option value={5}>5★ only</option></select></div>
+            <div><label className="block text-sm font-semibold mb-1">Sort By</label><select className="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600" value={sort} onChange={updateFilter(setSort)}><option value="">Default</option><option value="priceLow">Price: Low to High</option><option value="priceHigh">Price: High to Low</option><option value="ratingHigh">Rating: High to Low</option><option value="newest">Newest First</option></select></div>
+            <button type="button" onClick={() => { setSearch(''); setSelectedCategories([]); setMinPrice(''); setMaxPrice(''); setMinRating(0); setSort(''); setCurrentPage(1); }} className="w-full rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800">Clear filters</button>
           </div>
         </aside>
-
-        {/* Products */}
         <section className="md:col-span-3">
-          <div className="mb-6 flex justify-between items-center">
-            <h2 className="text-2xl font-bold">Products</h2>
-            <p className="text-sm text-gray-600 dark:text-gray-300">
-              Showing {filtered.length} {filtered.length === 1 ? 'item' : 'items'}
-            </p>
-          </div>
-
-          {paginatedProducts.length === 0 ? (
-            <div className="text-center py-20 bg-white dark:bg-gray-900 rounded-lg">
-              <p className="text-lg">No products match the selected filters.</p>
-            </div>
-          ) : (
-            <>
-              <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                {paginatedProducts.map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-              </div>
-
-              {/* Pagination Controls */}
-              <div className="mt-10 flex justify-center space-x-2">
-                <button
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  disabled={currentPage === 1}
-                  className="px-4 py-2 bg-gray-300 dark:bg-gray-700 rounded disabled:opacity-50"
-                >
-                  Prev
-                </button>
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                  <button
-                    key={page}
-                    onClick={() => handlePageChange(page)}
-                    className={`px-4 py-2 rounded ${
-                      currentPage === page
-                        ? 'bg-white dark:bg-gray-900 text-black dark:text-white'
-                        : 'bg-gray-200 dark:bg-gray-700'
-                    }`}
-                  >
-                    {page}
-                  </button>
-                ))}
-                <button
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                  className="px-4 py-2 bg-gray-300 dark:bg-gray-700 rounded disabled:opacity-50"
-                >
-                  Next
-                </button>
-              </div>
-            </>
-          )}
+          <div className="mb-6 flex justify-between items-center gap-3"><h2 className="text-2xl font-bold">Products</h2><p className="text-sm text-gray-600 dark:text-gray-300">Showing {products.length} of {total} {total === 1 ? 'item' : 'items'}</p></div>
+          {error && <div role="alert" className="mb-5 rounded-lg border border-red-300 bg-red-50 text-red-700 p-4">{error}</div>}
+          {isLoading ? <p className="py-10 text-center text-gray-500">Updating products...</p> : products.length === 0 ? <div className="text-center py-20 bg-white dark:bg-gray-900 rounded-lg"><p className="text-lg">No products match the selected filters.</p></div> : <>
+            <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">{products.map((product) => <ProductCard key={product.id || product._id} product={{ ...product, id: product.id || product._id, rating: Number(product.rating || 0), thumbnail: product.thumbnail || product.images?.[0] || '' }} />)}</div>
+            {totalPages > 1 && <div className="mt-10 flex flex-wrap justify-center gap-2"><button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} className="px-4 py-2 bg-gray-300 dark:bg-gray-700 rounded disabled:opacity-50">Prev</button>{Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => <button key={page} onClick={() => handlePageChange(page)} className={`px-4 py-2 rounded ${currentPage === page ? 'bg-white dark:bg-gray-900 text-black dark:text-white' : 'bg-gray-200 dark:bg-gray-700'}`}>{page}</button>)}<button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} className="px-4 py-2 bg-gray-300 dark:bg-gray-700 rounded disabled:opacity-50">Next</button></div>}
+          </>}
         </section>
       </div>
     </div>

@@ -7,15 +7,24 @@ import { useCart } from '../contexts/CartContext';
 const ProductDetails = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
 
   const { addToCart } = useCart();
 
 
   useEffect(() => {
-    fetchProductById(id).then(setProduct);
+    let cancelled = false;
+    setIsLoading(true);
+    setError('');
+    fetchProductById(id)
+      .then((data) => { if (!cancelled) setProduct(data); })
+      .catch((err) => { if (!cancelled) setError(err.response?.data?.message || 'Could not load this product.'); })
+      .finally(() => { if (!cancelled) setIsLoading(false); });
+    return () => { cancelled = true; };
   }, [id]);
 
-  if (!product) {
+  if (isLoading) {
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-800">
         <div className="text-center">
@@ -24,6 +33,10 @@ const ProductDetails = () => {
         </div>
         </div>
     );
+  }
+
+  if (error || !product) {
+    return <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-800 px-6"><p className="text-center text-red-600 dark:text-red-400">{error || 'Product not found.'}</p></div>;
   }
 
   return (
@@ -46,8 +59,8 @@ const ProductDetails = () => {
 
             <div className="flex items-center gap-4">
                 <span className="text-2xl text-green-600 dark:text-green-400 font-semibold">${product.price}</span>
-                <span className="text-sm text-red-500 line-through">${(product.price / (1 - product.discountPercentage / 100)).toFixed(2)}</span>
-                <span className="text-sm text-red-600">-{product.discountPercentage}%</span>
+                <span className="text-sm text-red-500 line-through">${(product.price / (1 - (product.discountPercentage || 0) / 100)).toFixed(2)}</span>
+                <span className="text-sm text-red-600">-{product.discountPercentage || 0}%</span>
             </div>
 
             <div className="flex items-center gap-2">
@@ -61,7 +74,7 @@ const ProductDetails = () => {
                 <p><strong>Weight:</strong> {product.weight}g</p>
                 <p><strong>Dimensions:</strong> {product.dimensions?.width} x {product.dimensions?.height} x {product.dimensions?.depth} cm</p>
                 <p><strong>SKU:</strong> {product.sku}</p>
-                <p><strong>Barcode:</strong> {product.meta?.barcode}</p>
+                <p><strong>Barcode:</strong> {product.meta?.barcode || '—'}</p>
                 <p><strong>Warranty:</strong> {product.warrantyInformation}</p>
                 <p><strong>Shipping:</strong> {product.shippingInformation}</p>
                 <p><strong>Return Policy:</strong> {product.returnPolicy}</p>

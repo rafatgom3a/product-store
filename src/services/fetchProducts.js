@@ -1,11 +1,6 @@
 import api from './api';
 
-export async function fetchProducts() {
-  try {
-    const response = await api.get('/products');
-    return response.data.products;
-  } catch (error) {
-    console.error('Error fetching products:', error);
-    return [];
-  }
+export async function fetchProducts(params = {}) {
+  const response = await api.get('/products', { params });
+  return response.data;
 }
