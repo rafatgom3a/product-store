@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Sun, Moon, Menu, X, ShoppingCart } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext'
+import { useAuth } from '../contexts/AuthContext'
 
 const Navbar = () => {
   const [darkMode, setDarkMode] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout, isLoading } = useAuth();
 
   const { cartItems } = useCart()
   const totalItems = cartItems?.length || 0
@@ -44,6 +47,7 @@ const Navbar = () => {
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const closeMenu = () => setIsMenuOpen(false);
+  const handleLogout = () => { logout(); closeMenu(); navigate('/'); };
 
   const navLinks = (
     <>
@@ -78,6 +82,8 @@ const Navbar = () => {
       >
         Contact Us
       </Link>
+
+      {user && <Link to="/account" onClick={closeMenu} className={`transition hover:text-indigo-400 ${isActive('/account') ? 'underline underline-offset-4 decoration-2' : ''}`}>My Account</Link>}
     </>
   );
 
@@ -99,18 +105,14 @@ const Navbar = () => {
 
         {/* Actions */}
         <div className="flex items-center space-x-4">
-          {/* <Link
-            to="/signin"
-            className="hidden md:inline-block px-4 py-1 border rounded transition border-gray-300 text-gray-900 bg-white hover:bg-gray-100 dark:border-gray-700 dark:text-gray-100 dark:bg-gray-900 dark:hover:bg-gray-800"
-          >
-            Sign In
-          </Link>
-          <Link
-            to="/signup"
-            className="hidden md:inline-block px-4 py-1 rounded bg-indigo-600 text-white hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-600 transition"
-          >
-            Sign Up
-          </Link> */}
+          {!isLoading && (user ? (
+            <button onClick={handleLogout} className="hidden md:inline-flex rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium transition hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-gray-800">Sign Out</button>
+          ) : (
+            <div className="hidden md:flex items-center gap-2">
+              <Link to="/signin" className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm transition hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-gray-800">Sign In</Link>
+              <Link to="/signup" className="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm text-white transition hover:bg-indigo-500">Sign Up</Link>
+            </div>
+          ))}
           {/* Cart Icon */}
           <Link
             to="/cart"
@@ -145,6 +147,12 @@ const Navbar = () => {
           <div className="flex flex-col space-y-3 text-sm font-medium">
             {navLinks}
           </div>
+          {!isLoading && <div className="flex flex-col gap-2 border-t border-gray-200 pt-3 dark:border-gray-700">
+            {user ? <button onClick={handleLogout} className="w-full rounded-lg border border-gray-300 px-4 py-2 text-left dark:border-gray-700">Sign Out</button> : <>
+              <Link to="/signin" onClick={closeMenu} className="rounded-lg border border-gray-300 px-4 py-2 dark:border-gray-700">Sign In</Link>
+              <Link to="/signup" onClick={closeMenu} className="rounded-lg bg-indigo-600 px-4 py-2 text-white">Sign Up</Link>
+            </>}
+          </div>}
           {/* <div className="flex flex-col mt-4 space-y-2">
             <Link
               to="/signin"
