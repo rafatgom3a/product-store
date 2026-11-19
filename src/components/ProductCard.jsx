@@ -7,8 +7,9 @@ const ProductCard = ({ product, onAddToCart }) => {
 
   const renderStars = () => {
     const stars = [];
-    const fullStars = Math.floor(product.rating);
-    const halfStar = product.rating % 1 >= 0.5;
+    const rating = Number(product.rating) || 0;
+    const fullStars = Math.floor(rating);
+    const halfStar = rating % 1 >= 0.5;
 
     for (let i = 0; i < fullStars; i++) {
       stars.push(<Star key={i} size={16} className="text-yellow-400 fill-yellow-400" />);
@@ -41,7 +42,7 @@ const ProductCard = ({ product, onAddToCart }) => {
 
           <div className="flex items-center gap-1 mt-1">
             {renderStars()}
-            <span className="text-sm text-gray-500 dark:text-gray-400 ml-1">({product.rating.toFixed(1)})</span>
+            <span className="text-sm text-gray-500 dark:text-gray-400 ml-1">({(Number(product.rating) || 0).toFixed(1)})</span>
           </div>
 
           <p className="text-gray-700 dark:text-gray-300 line-clamp-2 text-sm mt-1">

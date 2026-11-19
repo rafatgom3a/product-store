@@ -151,7 +151,7 @@ function Home() {
                   />
                   {product.discountPercentage && (
                     <div className="absolute top-3 right-3 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
-                      -{product.discountPercentage.toFixed(0)}%
+                      -{(Number(product.discountPercentage) || 0).toFixed(0)}%
                     </div>
                   )}
                 </div>
@@ -161,7 +161,7 @@ function Home() {
                   <div className="flex items-center space-x-1 mb-3">
                     {renderStars(product.rating)}
                     <span className="text-sm text-gray-500 ml-2">
-                      ({product.rating.toFixed(1)})
+                      ({(Number(product.rating) || 0).toFixed(1)})
                     </span>
                   </div>
 

@@ -21,7 +21,7 @@ const Products = () => {
 
   useEffect(() => {
     fetchCategories()
-      .then(setCategories)
+      .then((data) => setCategories(Array.isArray(data) ? data : []))
       .catch((err) => console.error('Could not load categories:', err));
   }, []);
 
@@ -43,8 +43,8 @@ const Products = () => {
     fetchProducts(query)
       .then((data) => {
         if (cancelled) return;
-        setProducts(data.products || []);
-        setTotal(data.total || 0);
+        setProducts(Array.isArray(data?.products) ? data.products.map((product) => ({ ...product, rating: Number(product.rating) || 0 })) : []);
+        setTotal(Number(data?.total) || 0);
       })
       .catch((err) => {
         if (cancelled) return;
