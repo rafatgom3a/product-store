@@ -8,6 +8,7 @@ import Contact from './pages/Contact';
 import Products from './pages/Products';
 import ProductDetails from './pages/ProductDetails';
 import Cart from './pages/Cart';
+import Checkout from './pages/Checkout';
 import SignIn from './pages/SignIn';
 import SignUp from './pages/SignUp';
 import Account from './pages/Account';
@@ -32,6 +33,7 @@ function App() {
         </Route>
         <Route element={<ProtectedRoute />}>
           <Route path="/account" element={<Account />} />
+          <Route path="/checkout" element={<Checkout />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>

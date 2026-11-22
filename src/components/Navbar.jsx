@@ -11,8 +11,8 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { user, logout, isLoading } = useAuth();
 
-  const { cartItems } = useCart()
-  const totalItems = cartItems?.length || 0
+  const { getTotalItems } = useCart()
+  const totalItems = getTotalItems()
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');

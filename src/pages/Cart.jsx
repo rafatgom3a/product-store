@@ -1,107 +1,96 @@
+import { Minus, Plus, Trash2, ShoppingBag, CreditCard } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
-import { Minus, Plus, Trash2 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
-const Cart = () => {
-  const { cartItems, removeFromCart, increaseQuantity, decreaseQuantity, getTotalItems } = useCart();
+export default function Cart() {
+  const {
+    cartItems, removeFromCart, increaseQuantity, decreaseQuantity,
+    getTotalItems, getTotalPrice,
+  } = useCart();
+  const { user, isLoading } = useAuth();
+  const navigate = useNavigate();
+
+  const handleCheckout = () => {
+    if (isLoading) return;
+    // Preserve the intended destination so SignIn can return here after login.
+    navigate(user ? '/checkout' : '/signin', {
+      state: user ? undefined : { from: { pathname: '/checkout' } },
+    });
+  };
 
   return (
-    <div className="p-6 bg-gray-100 dark:bg-gray-800">
-        <div className="max-w-3xl mx-auto">
-            <h1 className="text-2xl font-bold mb-6">🛒 Your Shopping Cart</h1>
+    <main className="min-h-[65vh] bg-gray-100 px-4 py-10 dark:bg-gray-800">
+      <div className="mx-auto max-w-4xl">
+        <h1 className="mb-7 flex items-center gap-3 text-2xl font-bold text-gray-900 dark:text-white">
+          <ShoppingBag /> Your Shopping Cart
+        </h1>
 
-            {cartItems.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12">
-                <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-24 w-24 text-gray-300 mb-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                >
-                <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1}
-                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-                />
-                </svg>
-                <h3 className="text-xl font-medium text-gray-500 mb-2">Your cart is empty</h3>
-                <p className="text-gray-400 mb-6">Looks like you haven't added any items yet</p>
-                <Link
-                to="/products"
-                className="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
-                >
-                Browse Products
-                </Link>
-            </div>
-            ) : (
-                <div className="space-y-4">
-                {cartItems.map((item) => (
-                    <div
-                    key={item.id}
-                    className="flex justify-between items-center p-4 bg-white dark:bg-gray-900 shadow-md rounded-lg border"
-                    >
-                    {/* Item Info */}
-                    <div className="flex items-center gap-4 flex-1 min-w-0">
-                        <img
-                        src={item.thumbnail}
-                        alt={item.title}
-                        className="w-16 h-16 object-contain rounded"
-                        />
-                        <div className="truncate">
-                        <h2 className="font-semibold text-lg truncate">{item.title}</h2>
-                        <p className="text-gray-600 dark:text-gray-400 text-sm">${item.price.toFixed(2)}</p>
-                        </div>
+        {cartItems.length === 0 ? (
+          <section className="flex flex-col items-center rounded-2xl bg-white px-6 py-14 text-center shadow-sm dark:bg-gray-900">
+            <ShoppingBag size={58} className="mb-4 text-gray-300" />
+            <h2 className="mb-2 text-xl font-semibold text-gray-700 dark:text-gray-200">Your cart is empty</h2>
+            <p className="mb-6 text-gray-500 dark:text-gray-400">Browse our products and add something you like.</p>
+            <Link to="/products" className="rounded-xl bg-indigo-600 px-6 py-3 font-semibold text-white hover:bg-indigo-700">
+              Browse Products
+            </Link>
+          </section>
+        ) : (
+          <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+            <section className="space-y-4">
+              {cartItems.map((item) => (
+                <article key={item.id} className="flex flex-wrap items-center gap-4 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900">
+                  <img
+                    src={item.thumbnail || item.image || item.imageUrl || '/placeholder.png'}
+                    alt={item.title || item.name || 'Product'}
+                    className="h-20 w-20 rounded-xl bg-gray-50 object-contain dark:bg-gray-800"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <h2 className="truncate font-semibold text-gray-900 dark:text-white">{item.title || item.name}</h2>
+                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">${(Number(item.price) || 0).toFixed(2)} each</p>
+                    <div className="mt-3 flex items-center gap-3">
+                      <button aria-label="Decrease quantity" onClick={() => decreaseQuantity(item.id)} className="rounded-lg border p-1.5 hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-800"><Minus size={15} /></button>
+                      <span className="w-5 text-center font-semibold dark:text-white">{item.quantity}</span>
+                      <button aria-label="Increase quantity" onClick={() => increaseQuantity(item.id)} className="rounded-lg border p-1.5 hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-800"><Plus size={15} /></button>
                     </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <span className="font-bold text-gray-900 dark:text-white">${((Number(item.price) || 0) * item.quantity).toFixed(2)}</span>
+                    <button aria-label="Remove item" onClick={() => removeFromCart(item.id)} className="rounded-lg p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30"><Trash2 size={19} /></button>
+                  </div>
+                </article>
+              ))}
+            </section>
 
-                    {/* Quantity Controls */}
-                    <div className="flex items-center justify-center w-24">
-                        <div className="flex items-center gap-2">
-                        <button
-                            onClick={() => decreaseQuantity(item.id)}
-                            className="p-1 border rounded hover:bg-gray-100"
-                        >
-                            <Minus size={16} />
-                        </button>
-                        <span className="font-medium w-6 text-center">{item.quantity}</span>
-                        <button
-                            onClick={() => increaseQuantity(item.id)}
-                            className="p-1 border rounded hover:bg-gray-100"
-                        >
-                            <Plus size={16} />
-                        </button>
-                        </div>
-                    </div>
-
-                    {/* Remove Button */}
-                    <button
-                        onClick={() => removeFromCart(item.id)}
-                        className="text-red-500 hover:text-red-700 transition ml-4"
-                        title="Remove from cart"
-                    >
-                        <Trash2 size={20} />
-                    </button>
-                    </div>
-                ))}
-
-                {/* Summary */}
-                <div className="mt-6 p-4 bg-white dark:bg-gray-900 rounded-lg shadow-sm text-right space-y-2">
-                    <p className="text-md font-semibold">
-                    Total Items: {getTotalItems()}
-                    </p>
-                    <p className="text-lg font-bold">
-                    Total Price: $
-                    {cartItems
-                        .reduce((total, item) => total + item.price * item.quantity, 0)
-                        .toFixed(2)}
-                    </p>
-                </div>
-                </div>
-            )}
-        </div>
-    </div>
+            <aside className="h-fit rounded-2xl bg-white p-5 shadow-sm dark:bg-gray-900">
+              <h2 className="mb-5 text-lg font-bold text-gray-900 dark:text-white">Order summary</h2>
+              <div className="flex justify-between py-2 text-sm text-gray-600 dark:text-gray-300">
+                <span>Items ({getTotalItems()})</span>
+                <span>${getTotalPrice().toFixed(2)}</span>
+              </div>
+              <div className="my-3 border-t border-gray-200 dark:border-gray-700" />
+              <div className="mb-5 flex justify-between text-lg font-bold text-gray-900 dark:text-white">
+                <span>Total</span><span>${getTotalPrice().toFixed(2)}</span>
+              </div>
+              <button
+                onClick={handleCheckout}
+                disabled={isLoading}
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-60"
+              >
+                <CreditCard size={19} /> {isLoading ? 'Checking session…' : 'Proceed to Checkout'}
+              </button>
+              {!user && !isLoading && (
+                <p className="mt-3 text-center text-xs text-gray-500 dark:text-gray-400">
+                  You will be asked to sign in before continuing to payment.
+                </p>
+              )}
+              <Link to="/products" className="mt-4 block text-center text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-400">
+                Continue shopping
+              </Link>
+            </aside>
+          </div>
+        )}
+      </div>
+    </main>
   );
-};
-
-export default Cart;
+}
