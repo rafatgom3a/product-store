@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Sun, Moon, Menu, X, ShoppingCart, Heart, UserRound } from 'lucide-react';
+import { Sun, Moon, Menu, X, ShoppingCart, Heart, UserRound, Languages } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext'
 import { useAuth } from '../contexts/AuthContext'
 import { useWishlist } from '../contexts/WishlistContext'
+import { useLanguage } from '../contexts/LanguageContext'
 
 const Navbar = () => {
   const [darkMode, setDarkMode] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const { user, isLoading } = useAuth();
+  const { language, setLanguage } = useLanguage();
 
   const { wishlistItems } = useWishlist()
   const { getTotalItems } = useCart()
@@ -131,8 +133,20 @@ const Navbar = () => {
             )}
           </Link>
 
+          {/* Language Toggle */}
+          <button
+            type="button"
+            onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')}
+            className="inline-flex items-center gap-1 rounded-lg p-2 text-sm font-semibold hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-gray-800 transition"
+            aria-label={language === 'ar' ? 'Switch to English' : 'التبديل إلى العربية'}
+            title={language === 'ar' ? 'English' : 'العربية'}
+          >
+            <Languages size={20} />
+            <span>{language === 'ar' ? 'EN' : 'ع'}</span>
+          </button>
+
           {/* Theme Toggle */}
-          <button onClick={toggleTheme} className="hover:text-indigo-400 transition">
+          <button onClick={toggleTheme} className="rounded-lg p-2 hover:bg-indigo-50 hover:text-indigo-400 dark:hover:bg-gray-800 transition" aria-label="Toggle theme" title="Toggle theme">
             {darkMode ? <Sun size={20} /> : <Moon size={20} />}
           </button>
 

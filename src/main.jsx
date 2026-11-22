@@ -5,9 +5,11 @@ import App from './App.jsx';
 import { CartProvider } from './contexts/CartContext';
 import { WishlistProvider } from './contexts/WishlistContext';
 import { AuthProvider } from './contexts/AuthContext';
+import { LanguageProvider } from './contexts/LanguageContext';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
+    <LanguageProvider>
     <AuthProvider>
       <CartProvider>
         <WishlistProvider>
@@ -15,5 +17,6 @@ createRoot(document.getElementById('root')).render(
         </WishlistProvider>
       </CartProvider>
     </AuthProvider>
+    </LanguageProvider>
   </StrictMode>,
 );
