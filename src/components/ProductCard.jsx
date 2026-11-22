@@ -1,9 +1,12 @@
 import { Link } from 'react-router-dom';
-import { ShoppingCart, Star } from 'lucide-react';
+import { ShoppingCart, Star, Heart } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
+import { useWishlist } from '../contexts/WishlistContext';
 
 const ProductCard = ({ product, onAddToCart }) => {
   const { addToCart } = useCart();
+  const { isInWishlist, toggleWishlist } = useWishlist();
+  const favorite = isInWishlist(product);
 
   const renderStars = () => {
     const stars = [];
@@ -25,7 +28,16 @@ const ProductCard = ({ product, onAddToCart }) => {
   };
 
   return (
-    <div className="group flex flex-col justify-between bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:scale-[1.02] hover:shadow-2xl">
+    <div className="group relative flex flex-col justify-between bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:scale-[1.02] hover:shadow-2xl">
+      <button
+        type="button"
+        aria-label={favorite ? 'Remove from wishlist' : 'Add to wishlist'}
+        title={favorite ? 'Remove from wishlist' : 'Add to wishlist'}
+        onClick={() => toggleWishlist(product)}
+        className="absolute right-3 top-3 z-10 rounded-full bg-white/95 p-2 text-rose-500 shadow-md transition hover:scale-110 dark:bg-gray-800"
+      >
+        <Heart size={20} className={favorite ? 'fill-rose-500' : ''} />
+      </button>
       <Link to={`/products/${product.id}`} className="block">
         <div className="relative overflow-hidden">
           <img

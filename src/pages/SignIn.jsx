@@ -16,7 +16,7 @@ export default function SignIn() {
     event.preventDefault(); setError(''); setBusy(true);
     try {
       await login(form);
-      navigate(location.state?.from?.pathname || '/account', { replace: true });
+      navigate(location.state?.from?.pathname || '/', { replace: true });
     } catch (err) { setError(err.message); }
     finally { setBusy(false); }
   }

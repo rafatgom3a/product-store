@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Sun, Moon, Menu, X, ShoppingCart } from 'lucide-react';
+import { Sun, Moon, Menu, X, ShoppingCart, Heart } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext'
 import { useAuth } from '../contexts/AuthContext'
+import { useWishlist } from '../contexts/WishlistContext'
 
 const Navbar = () => {
   const [darkMode, setDarkMode] = useState(true);
@@ -11,6 +12,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { user, logout, isLoading } = useAuth();
 
+  const { wishlistItems } = useWishlist()
   const { getTotalItems } = useCart()
   const totalItems = getTotalItems()
 
@@ -114,6 +116,10 @@ const Navbar = () => {
             </div>
           ))}
           {/* Cart Icon */}
+          <Link to="/wishlist" className="relative hover:text-rose-500 transition" aria-label="Wishlist" title="Wishlist">
+            <Heart size={22} />
+            {wishlistItems.length > 0 && <span className="absolute -right-2 -top-2 rounded-full bg-rose-500 px-1.5 py-0.5 text-xs font-bold text-white">{wishlistItems.length}</span>}
+          </Link>
           <Link
             to="/cart"
             className="relative hover:text-indigo-500 transition"

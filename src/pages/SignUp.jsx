@@ -19,7 +19,7 @@ export default function SignUp() {
     try {
       const { confirmPassword, ...details } = form;
       await register(details);
-      navigate('/account', { replace: true });
+      navigate('/', { replace: true });
     } catch (err) { setError(err.message); }
     finally { setBusy(false); }
   }

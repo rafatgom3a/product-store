@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { ShoppingCart, Star, Truck, Shield, Headphones } from "lucide-react";
+import { ShoppingCart, Star, Truck, Shield, Headphones, Heart } from "lucide-react";
 import { fetchFeaturedProducts } from "./../services/fetchFeaturedProducts ";
 import { useCart } from '../contexts/CartContext';
+import { useWishlist } from '../contexts/WishlistContext';
 
 const testimonials = [
   {
@@ -33,6 +34,7 @@ function Home() {
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
 
   const { addToCart } = useCart();
+  const { isInWishlist, toggleWishlist } = useWishlist();
   
 
   useEffect(() => {
@@ -144,6 +146,14 @@ function Home() {
               >
                 {/* Product Image */}
                 <div className="relative overflow-hidden">
+                  <button
+                    type="button"
+                    aria-label={isInWishlist(product) ? 'Remove from wishlist' : 'Add to wishlist'}
+                    onClick={() => toggleWishlist(product)}
+                    className="absolute right-3 top-3 z-10 rounded-full bg-white/95 p-2 text-rose-500 shadow-md transition hover:scale-110 dark:bg-gray-800"
+                  >
+                    <Heart size={20} className={isInWishlist(product) ? 'fill-rose-500' : ''} />
+                  </button>
                   <img
                     src={product.thumbnail}
                     alt={product.title}

@@ -1,8 +1,9 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { fetchProductById } from '../services/fetchProductById';
-import { Star, ShoppingCart } from 'lucide-react';
+import { Star, ShoppingCart, Heart } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
+import { useWishlist } from '../contexts/WishlistContext';
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -11,6 +12,7 @@ const ProductDetails = () => {
   const [error, setError] = useState('');
 
   const { addToCart } = useCart();
+  const { isInWishlist, toggleWishlist } = useWishlist();
 
 
   useEffect(() => {
@@ -82,6 +84,7 @@ const ProductDetails = () => {
                 <p><strong>Minimum Order:</strong> {product.minimumOrderQuantity}</p>
             </div>
 
+            <div className="flex flex-wrap items-center gap-3">
             <button
               type="button"
               onClick={(e) => {
@@ -94,6 +97,15 @@ const ProductDetails = () => {
               <ShoppingCart size={16} />
               Add to Cart
             </button>
+            <button
+              type="button"
+              onClick={() => toggleWishlist(product)}
+              className="inline-flex items-center gap-2 rounded-lg border border-rose-300 px-4 py-2 text-sm font-medium text-rose-600 transition hover:bg-rose-50 dark:border-rose-800 dark:hover:bg-rose-950/30"
+            >
+              <Heart size={17} className={isInWishlist(product) ? 'fill-rose-500 text-rose-500' : ''} />
+              {isInWishlist(product) ? 'Remove from Wishlist' : 'Add to Wishlist'}
+            </button>
+            </div>
         </div>
        </div>
 
