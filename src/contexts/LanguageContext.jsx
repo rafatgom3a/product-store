@@ -32,8 +32,14 @@ function translatePage(language) {
     root.querySelectorAll('input, textarea, button, a, [aria-label], [title]').forEach((element) => {
       ['placeholder', 'aria-label', 'title'].forEach((attribute) => {
         if (!element.hasAttribute(attribute)) return;
-        const original = element.dataset[`i18n${attribute}`] ?? element.getAttribute(attribute);
-        if (!element.dataset[`i18n${attribute}`]) element.dataset[`i18n${attribute}`] = original;
+        // Use a literal data-* attribute name: dataset keys cannot contain hyphens
+        // such as the one in aria-label (dataset.i18naria-label throws at runtime).
+        const originalAttribute = `data-i18n-${attribute}`;
+        let original = element.getAttribute(originalAttribute);
+        if (original === null) {
+          original = element.getAttribute(attribute);
+          element.setAttribute(originalAttribute, original);
+        }
         const key = normalize(original);
         const nextValue = language === 'ar' && translations[key] ? translations[key] : original;
         if (element.getAttribute(attribute) !== nextValue) element.setAttribute(attribute, nextValue);
