@@ -1,12 +1,11 @@
 import { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { LockKeyhole, Mail, ShoppingBag } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function SignIn() {
   const { login } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -16,7 +15,7 @@ export default function SignIn() {
     event.preventDefault(); setError(''); setBusy(true);
     try {
       await login(form);
-      navigate(location.state?.from?.pathname || '/', { replace: true });
+      navigate('/', { replace: true });
     } catch (err) { setError(err.message); }
     finally { setBusy(false); }
   }
@@ -28,10 +27,10 @@ export default function SignIn() {
       <p className="mb-8 mt-2 text-center text-sm text-gray-500 dark:text-gray-400">Sign in to continue to your StoreHub account.</p>
       <form onSubmit={handleSubmit} className="space-y-5">
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Email address
-          <span className="relative mt-2 block"><Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} /><input name="email" type="email" autoComplete="email" required value={form.email} onChange={change} placeholder="you@example.com" className="w-full rounded-xl border border-gray-300 bg-white py-3 pl-10 pr-3 text-gray-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:ring-indigo-900" /></span>
+          <span className="relative mt-2 block"><Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} /><input name="email" type="email" autoComplete="email" required maxLength={254} value={form.email} onChange={change} placeholder="you@example.com" className="w-full rounded-xl border border-gray-300 bg-white py-3 pl-10 pr-3 text-gray-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:ring-indigo-900" /></span>
         </label>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Password
-          <span className="relative mt-2 block"><LockKeyhole className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} /><input name="password" type="password" autoComplete="current-password" required value={form.password} onChange={change} placeholder="Enter your password" className="w-full rounded-xl border border-gray-300 bg-white py-3 pl-10 pr-3 text-gray-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:ring-indigo-900" /></span>
+          <span className="relative mt-2 block"><LockKeyhole className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} /><input name="password" type="password" autoComplete="current-password" required minLength={8} maxLength={128} value={form.password} onChange={change} placeholder="Enter your password" className="w-full rounded-xl border border-gray-300 bg-white py-3 pl-10 pr-3 text-gray-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:ring-indigo-900" /></span>
         </label>
         {error && <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">{error}</p>}
         <button disabled={busy} className="w-full rounded-xl bg-indigo-600 px-4 py-3 font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60">{busy ? 'Signing in…' : 'Sign In'}</button>

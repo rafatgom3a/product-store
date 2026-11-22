@@ -43,6 +43,15 @@ export function AuthProvider({ children }) {
     }
   }, [saveSession]);
 
+  const updateProfile = useCallback(async (profile) => {
+    try {
+      const { data } = await api.patch('/auth/me', profile);
+      localStorage.setItem('storehub_user', JSON.stringify(data.user));
+      setUser(data.user);
+      return data.user;
+    } catch (error) { throw new Error(getApiError(error)); }
+  }, []);
+
   const logout = useCallback(() => {
     localStorage.removeItem('storehub_token');
     localStorage.removeItem('storehub_user');
@@ -82,8 +91,8 @@ export function AuthProvider({ children }) {
 
   const value = useMemo(() => ({
     user, isLoading, isAuthenticated: Boolean(user), isAdmin: user?.role === 'admin',
-    login, register, logout,
-  }), [user, isLoading, login, register, logout]);
+    login, register, updateProfile, logout,
+  }), [user, isLoading, login, register, updateProfile, logout]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

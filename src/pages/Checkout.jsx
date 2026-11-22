@@ -10,13 +10,23 @@ export default function Checkout() {
   const [paymentMethod, setPaymentMethod] = useState('card');
   const [notice, setNotice] = useState('');
   const [phone, setPhone] = useState(user?.phone || user?.mobile || '');
+  const [formError, setFormError] = useState('');
 
   const customerName = user?.name || '';
   const customerEmail = user?.email || '';
 
   const handleSubmit = (event) => {
-    event.preventDefault();
-    setNotice('Checkout information saved on this page. A payment/order API must be connected to submit a real order.');
+    event.preventDefault(); setFormError('');
+    const data = new FormData(event.currentTarget);
+    const name = String(data.get('customerName') || '').trim();
+    const email = String(data.get('customerEmail') || '').trim();
+    const address = String(data.get('address') || '').trim();
+    const normalizedPhone = phone.replace(/[\s()-]/g, '');
+    if (name.length < 2 || name.length > 80) return setFormError('Enter a name between 2 and 80 characters.');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) return setFormError('Enter a valid email address.');
+    if (!/^(?:\+249|00249|0)?[19][0-9]{8}$/.test(normalizedPhone)) return setFormError('Enter a valid Sudanese mobile number, e.g. +249912345678.');
+    if (address.length < 8 || address.length > 300) return setFormError('Address must be between 8 and 300 characters.');
+    setNotice('Checkout information validated. A payment/order API must be connected to submit a real order.');
   };
 
   if (!cartItems.length) return (
@@ -38,16 +48,16 @@ export default function Checkout() {
               <h2 className="mb-4 text-lg font-bold text-gray-900 dark:text-white">Customer information</h2>
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-200">Full name
-                  <input required defaultValue={customerName} autoComplete="name" className="mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 outline-none focus:border-indigo-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
+                  <input name="customerName" required minLength={2} maxLength={80} defaultValue={customerName} autoComplete="name" className="mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 outline-none focus:border-indigo-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
                 </label>
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-200">Email address
-                  <input required type="email" defaultValue={customerEmail} autoComplete="email" className="mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 outline-none focus:border-indigo-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
+                  <input name="customerEmail" required type="email" maxLength={254} defaultValue={customerEmail} autoComplete="email" className="mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 outline-none focus:border-indigo-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
                 </label>
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-200 sm:col-span-2">Customer mobile number
-                  <input required type="tel" inputMode="tel" autoComplete="tel" value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="+966 5X XXX XXXX" pattern="[+0-9()\-\s]{8,20}" className="mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 outline-none focus:border-indigo-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
+                  <input required type="tel" inputMode="tel" autoComplete="tel" value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="+249 912 345 678" maxLength={18} className="mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 outline-none focus:border-indigo-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
                 </label>
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-200 sm:col-span-2">Shipping address
-                  <input required autoComplete="street-address" placeholder="Enter your full address" className="mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 outline-none focus:border-indigo-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
+                  <input name="address" required minLength={8} maxLength={300} autoComplete="street-address" placeholder="Enter your full address" className="mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 outline-none focus:border-indigo-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
                 </label>
               </div>
             </section>
@@ -62,6 +72,7 @@ export default function Checkout() {
                 <ShoppingBag size={20} className="text-indigo-600" /><span className="font-medium text-gray-800 dark:text-gray-100">Cash on Delivery</span>
               </label>
             </section>
+            {formError && <p role="alert" className="rounded-xl bg-red-50 p-4 text-sm text-red-700 dark:bg-red-950/30 dark:text-red-200">{formError}</p>}
             {notice && <p role="status" className="rounded-xl bg-amber-50 p-4 text-sm text-amber-800 dark:bg-amber-950/30 dark:text-amber-200">{notice}</p>}
             <button type="submit" className="flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 font-semibold text-white hover:bg-indigo-700"><LockKeyhole size={18} /> Continue</button>
           </form>

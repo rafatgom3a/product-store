@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Sun, Moon, Menu, X, ShoppingCart, Heart } from 'lucide-react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Sun, Moon, Menu, X, ShoppingCart, Heart, UserRound } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext'
 import { useAuth } from '../contexts/AuthContext'
 import { useWishlist } from '../contexts/WishlistContext'
@@ -9,8 +9,7 @@ const Navbar = () => {
   const [darkMode, setDarkMode] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
-  const { user, logout, isLoading } = useAuth();
+  const { user, isLoading } = useAuth();
 
   const { wishlistItems } = useWishlist()
   const { getTotalItems } = useCart()
@@ -49,7 +48,6 @@ const Navbar = () => {
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const closeMenu = () => setIsMenuOpen(false);
-  const handleLogout = () => { logout(); closeMenu(); navigate('/'); };
 
   const navLinks = (
     <>
@@ -85,7 +83,6 @@ const Navbar = () => {
         Contact Us
       </Link>
 
-      {user && <Link to="/account" onClick={closeMenu} className={`transition hover:text-indigo-400 ${isActive('/account') ? 'underline underline-offset-4 decoration-2' : ''}`}>My Account</Link>}
     </>
   );
 
@@ -108,7 +105,7 @@ const Navbar = () => {
         {/* Actions */}
         <div className="flex items-center space-x-4">
           {!isLoading && (user ? (
-            <button onClick={handleLogout} className="hidden md:inline-flex rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium transition hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-gray-800">Sign Out</button>
+            <Link to="/account" onClick={closeMenu} aria-label="My account" title="My account" className={`rounded-full p-2 transition hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-gray-800 ${isActive('/account') ? 'bg-indigo-50 text-indigo-600 dark:bg-gray-800' : ''}`}><UserRound size={22} /></Link>
           ) : (
             <div className="hidden md:flex items-center gap-2">
               <Link to="/signin" className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm transition hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-gray-800">Sign In</Link>
@@ -153,11 +150,9 @@ const Navbar = () => {
           <div className="flex flex-col space-y-3 text-sm font-medium">
             {navLinks}
           </div>
-          {!isLoading && <div className="flex flex-col gap-2 border-t border-gray-200 pt-3 dark:border-gray-700">
-            {user ? <button onClick={handleLogout} className="w-full rounded-lg border border-gray-300 px-4 py-2 text-left dark:border-gray-700">Sign Out</button> : <>
-              <Link to="/signin" onClick={closeMenu} className="rounded-lg border border-gray-300 px-4 py-2 dark:border-gray-700">Sign In</Link>
-              <Link to="/signup" onClick={closeMenu} className="rounded-lg bg-indigo-600 px-4 py-2 text-white">Sign Up</Link>
-            </>}
+          {!isLoading && !user && <div className="flex flex-col gap-2 border-t border-gray-200 pt-3 dark:border-gray-700">
+            <Link to="/signin" onClick={closeMenu} className="rounded-lg border border-gray-300 px-4 py-2 dark:border-gray-700">Sign In</Link>
+            <Link to="/signup" onClick={closeMenu} className="rounded-lg bg-indigo-600 px-4 py-2 text-white">Sign Up</Link>
           </div>}
           {/* <div className="flex flex-col mt-4 space-y-2">
             <Link
