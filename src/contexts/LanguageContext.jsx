@@ -11,6 +11,20 @@ const translations = {
   'Checkout':'إتمام الطلب','Checkout information validated. A payment/order API must be connected to submit a real order.':'تم التحقق من بيانات الطلب. يجب ربط واجهة الدفع والطلبات لإرسال طلب حقيقي.','Enter your full address':'أدخل عنوانك بالتفصيل','Shipping Address':'عنوان الشحن','Order Summary':'ملخص الطلب','Place Order':'تأكيد الطلب',
   'Could not load this product.':'تعذر تحميل هذا المنتج.','Product not found.':'المنتج غير موجود.','Add to Wishlist':'أضف إلى المفضلة','Back to Products':'العودة إلى المنتجات','Failed to fetch products:':'تعذر تحميل المنتجات:','Could not load products. Check that the StoreHub backend is running.':'تعذر تحميل المنتجات. تحقق من تشغيل الخادم الخلفي لـ StoreHub.','Could not load categories:':'تعذر تحميل التصنيفات:','Error fetching products:':'حدث خطأ أثناء جلب المنتجات:','Could not load your saved wishlist:':'تعذر تحميل قائمة المفضلة:','Could not load your saved cart:':'تعذر تحميل سلة التسوق:','The server returned an incomplete login response.':'أعاد الخادم استجابة تسجيل دخول غير مكتملة.','Page not found':'الصفحة غير موجودة','The page you are looking for does not exist.':'الصفحة التي تبحث عنها غير موجودة.','Go Home':'العودة للرئيسية',
   'Outstanding quality and customer service. Will definitely shop again!':'جودة وخدمة عملاء مميزة. بالتأكيد سأكرر تجربة التسوق!','Best online shopping experience I':'أفضل تجربة تسوق عبر الإنترنت مررت بها','Loading your saved favorites…':'جارٍ تحميل المفضلة…','Your account details have been updated.':'تم تحديث بيانات حسابك بنجاح.'
+  ,'Phone':'الهاتف'
+  ,'Phone:':'الهاتف:'
+  ,'Address:':'العنوان:'
+  ,'Address':'العنوان'
+  ,'Sudan':'السودان'
+  ,'Fetching products...':'جارٍ تحميل المنتجات...'
+  ,'fetching products...':'جارٍ تحميل المنتجات...'
+  ,'Fetching products…':'جارٍ تحميل المنتجات...'
+  ,'Exceptional quality and service! The products arrived exactly as described and the customer support was outstanding.':'جودة استثنائية وخدمة رائعة! وصلت المنتجات تمامًا كما وُصفت، وكان دعم العملاء على مستوى مميز.'
+  ,', we’ve been driven by a passion for quality and innovation. Whether you’re searching for daily essentials or exclusive finds, we work hard to bring the best right to your doorstep.':', نعمل بشغف من أجل الجودة والابتكار. سواء كنت تبحث عن احتياجاتك اليومية أو عن منتجات حصرية، نبذل جهدنا لتقديم الأفضل حتى باب منزلك.'
+  ,', we’re driven by a passion for quality and innovation. Whether you’re searching for daily essentials or exclusive finds, we work hard to bring the best right to your doorstep.':', نعمل بشغف من أجل الجودة والابتكار. سواء كنت تبحث عن احتياجاتك اليومية أو عن منتجات حصرية، نبذل جهدنا لتقديم الأفضل حتى باب منزلك.'
+  ,'Thank you for trusting us — your satisfaction is our top priority. We’re constantly growing, improving, and striving to exceed your expectations.':'شكرًا لثقتك بنا؛ رضاك هو أولويتنا. نواصل التطور والتحسين ونسعى دائمًا إلى تجاوز توقعاتك.'
+  ,'Thank you for trusting us — your satisfaction is our top priority. We're constantly growing, improving, and striving to exceed your expectations.':'شكرًا لثقتك بنا؛ رضاك هو أولويتنا. نواصل التطور والتحسين ونسعى دائمًا إلى تجاوز توقعاتك.'
+
 };
 
 const LanguageContext = createContext(null);
@@ -26,7 +40,10 @@ function translatePage(language) {
       const original = node.__storeHubOriginal ?? node.nodeValue;
       if (!node.__storeHubOriginal) node.__storeHubOriginal = original;
       const key = normalize(original);
-      const nextValue = language === 'ar' && translations[key] ? original.replace(key, translations[key]) : original;
+      const dynamicItems = key.match(/^Items\s*\((\d+)\)$/i);
+      const nextValue = language === 'ar'
+        ? (dynamicItems ? `المنتجات (${dynamicItems[1]})` : translations[key] ? translations[key] : original)
+        : original;
       if (node.nodeValue !== nextValue) node.nodeValue = nextValue;
     });
     root.querySelectorAll('input, textarea, button, a, [aria-label], [title]').forEach((element) => {
@@ -53,7 +70,7 @@ function translatePage(language) {
 }
 
 export function LanguageProvider({ children }) {
-  const [language, setLanguage] = useState(() => localStorage.getItem('storehub_language') || 'ar');
+  const [language, setLanguage] = useState(() => localStorage.getItem('storehub_language') === 'en' ? 'en' : 'ar');
   useEffect(() => {
     document.documentElement.lang = language;
     document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';

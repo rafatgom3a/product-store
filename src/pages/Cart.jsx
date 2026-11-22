@@ -2,10 +2,13 @@ import { Minus, Plus, Trash2, ShoppingBag, CreditCard } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export default function Cart() {
   const { cartItems, isCartLoading, removeFromCart, increaseQuantity, decreaseQuantity, getTotalItems, getTotalPrice } = useCart();
   const { user, isLoading: authLoading } = useAuth();
+  const { language } = useLanguage();
+  const isArabic = language === 'ar';
   const navigate = useNavigate();
 
   const checkout = () => navigate(user ? '/checkout' : '/signin', {
@@ -47,7 +50,7 @@ export default function Cart() {
             </section>
             <aside className="h-fit rounded-2xl bg-white p-5 shadow-sm dark:bg-gray-900">
               <h2 className="mb-5 text-lg font-bold text-gray-900 dark:text-white">Order summary</h2>
-              <div className="flex justify-between py-2 text-sm text-gray-600 dark:text-gray-300"><span>Items ({getTotalItems()})</span><span>${getTotalPrice().toFixed(2)}</span></div>
+              <div className="flex justify-between py-2 text-sm text-gray-600 dark:text-gray-300"><span>{isArabic ? 'المنتجات' : 'Items'} ({getTotalItems()})</span><span>${getTotalPrice().toFixed(2)}</span></div>
               <div className="my-3 border-t border-gray-200 dark:border-gray-700" />
               <div className="mb-5 flex justify-between text-lg font-bold text-gray-900 dark:text-white"><span>Total</span><span>${getTotalPrice().toFixed(2)}</span></div>
               <button onClick={checkout} disabled={authLoading} className="flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-60">

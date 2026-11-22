@@ -1,189 +1,110 @@
-import React, { useState, useEffect } from 'react';
-import { Sun, Moon, Menu, X, ShoppingCart, Heart, UserRound, Languages } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Sun, Moon, Menu, X, ShoppingCart, Heart, UserRound } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
-import { useCart } from '../contexts/CartContext'
-import { useAuth } from '../contexts/AuthContext'
-import { useWishlist } from '../contexts/WishlistContext'
-import { useLanguage } from '../contexts/LanguageContext'
+import { useCart } from '../contexts/CartContext';
+import { useAuth } from '../contexts/AuthContext';
+import { useWishlist } from '../contexts/WishlistContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const Navbar = () => {
-  const [darkMode, setDarkMode] = useState(true);
+  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('theme') !== 'light');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const { user, isLoading } = useAuth();
   const { language, setLanguage } = useLanguage();
-
-  const { wishlistItems } = useWishlist()
-  const { getTotalItems } = useCart()
-  const totalItems = getTotalItems()
-
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'light') {
-      setDarkMode(false);
-      document.documentElement.classList.remove('dark');
-    } else {
-      setDarkMode(true);
-      document.documentElement.classList.add('dark');
-    }
-  }, []);
+  const { wishlistItems } = useWishlist();
+  const { getTotalItems } = useCart();
+  const totalItems = getTotalItems();
+  const isArabic = language === 'ar';
 
   useEffect(() => {
-    const navbar = document.querySelector('nav');
-    if (navbar) {
-      const navbarHeight = navbar.offsetHeight;
-      document.body.style.paddingTop = `${navbarHeight}px`;
-      return () => {
-        document.body.style.paddingTop = '0';
-      };
-    }
-  }, []);
+    document.documentElement.classList.toggle('dark', darkMode);
+    localStorage.setItem('theme', darkMode ? 'dark' : 'light');
+  }, [darkMode]);
 
-  const toggleTheme = () => {
-    const newTheme = !darkMode;
-    setDarkMode(newTheme);
-    document.documentElement.classList.toggle('dark');
-    localStorage.setItem('theme', newTheme ? 'dark' : 'light');
-  };
+  useEffect(() => {
+    const updateOffset = () => {
+      const navbar = document.querySelector('.storehub-navbar');
+      if (navbar) document.body.style.paddingTop = `${navbar.offsetHeight}px`;
+    };
+    updateOffset();
+    window.addEventListener('resize', updateOffset);
+    return () => {
+      window.removeEventListener('resize', updateOffset);
+      document.body.style.paddingTop = '0';
+    };
+  }, [isMenuOpen]);
 
-  const isActive = (path) => location.pathname === path;
+  useEffect(() => setIsMenuOpen(false), [location.pathname]);
 
-  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  const toggleTheme = () => setDarkMode((value) => !value);
   const closeMenu = () => setIsMenuOpen(false);
-
-  const navLinks = (
-    <>
-      <Link
-        to="/"
-        onClick={closeMenu}
-        className={`transition hover:text-indigo-400 ${isActive('/') ? 'underline underline-offset-4 decoration-2' : ''}`}
-      >
-        Home
-      </Link>
-
-      <Link
-        to="/products"
-        onClick={closeMenu}
-        className={`transition hover:text-indigo-400 ${isActive('/products') ? 'underline underline-offset-4 decoration-2' : ''}`}
-      >
-        Products
-      </Link>
-
-      <Link
-        to="/about"
-        onClick={closeMenu}
-        className={`transition hover:text-indigo-400 ${isActive('/about') ? 'underline underline-offset-4 decoration-2' : ''}`}
-      >
-        About Us
-      </Link>
-
-      <Link
-        to="/contact"
-        onClick={closeMenu}
-        className={`transition hover:text-indigo-400 ${isActive('/contact') ? 'underline underline-offset-4 decoration-2' : ''}`}
-      >
-        Contact Us
-      </Link>
-
-    </>
-  );
+  const active = (path) => location.pathname === path;
+  const links = [
+    { to: '/', en: 'Home', ar: 'الرئيسية' },
+    { to: '/products', en: 'Products', ar: 'المنتجات' },
+    { to: '/about', en: 'About Us', ar: 'من نحن' },
+    { to: '/contact', en: 'Contact Us', ar: 'اتصل بنا' },
+  ];
 
   return (
-    <nav className="fixed top-0 left-0 w-full bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100 shadow-md z-50">
-      <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-        {/* Logo */}
-        <Link to="/" className="flex items-center space-x-2 mb-4 group">
-          <div className="w-8 h-8 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center transition-transform group-hover:scale-105 duration-300">
-            <ShoppingCart className="w-5 h-5 text-white" />
-          </div>
-          <span className="text-xl font-bold text-indigo-500 dark:text-indigo-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition-colors duration-300">
-            StoreHub
+    <nav className="storehub-navbar fixed inset-x-0 top-0 z-50 border-b border-gray-100 bg-white/95 text-gray-900 shadow-sm backdrop-blur-md dark:border-gray-800 dark:bg-gray-900/95 dark:text-gray-100">
+      <div className="mx-auto flex min-h-[76px] max-w-7xl items-center justify-between gap-5 px-4 sm:px-6">
+        <Link to="/" onClick={closeMenu} className="flex shrink-0 items-center gap-2.5 group">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-sm transition-transform group-hover:scale-105">
+            <ShoppingCart className="h-5 w-5 text-white" />
           </span>
+          <span className="text-xl font-extrabold tracking-tight text-indigo-600 dark:text-indigo-400">{isArabic ? 'ستور هَب' : 'StoreHub'}</span>
         </Link>
 
-        {/* Desktop Links */}
-        <div className="hidden md:flex space-x-6 text-sm font-medium">{navLinks}</div>
+        <div className="hidden items-center gap-8 text-[15px] font-semibold md:flex">
+          {links.map((item) => (
+            <Link key={item.to} to={item.to} className={`whitespace-nowrap transition-colors hover:text-indigo-600 dark:hover:text-indigo-400 ${active(item.to) ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-700 dark:text-gray-200'}`}>
+              {isArabic ? item.ar : item.en}
+            </Link>
+          ))}
+        </div>
 
-        {/* Actions */}
-        <div className="flex items-center space-x-4">
+        <div className="flex shrink-0 items-center gap-1 sm:gap-2">
           {!isLoading && (user ? (
-            <Link to="/account" onClick={closeMenu} aria-label="My account" title="My account" className={`rounded-full p-2 transition hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-gray-800 ${isActive('/account') ? 'bg-indigo-50 text-indigo-600 dark:bg-gray-800' : ''}`}><UserRound size={22} /></Link>
+            <Link to="/account" onClick={closeMenu} aria-label={isArabic ? 'حسابي' : 'My account'} title={isArabic ? 'حسابي' : 'My account'} className="nav-icon">
+              <UserRound size={21} />
+            </Link>
           ) : (
-            <div className="hidden md:flex items-center gap-2">
-              <Link to="/signin" className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm transition hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-gray-800">Sign In</Link>
-              <Link to="/signup" className="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm text-white transition hover:bg-indigo-500">Sign Up</Link>
+            <div className="hidden items-center gap-2 lg:flex">
+              <Link to="/signin" className="rounded-lg border border-gray-200 px-3 py-2 text-sm font-semibold transition hover:border-indigo-300 hover:text-indigo-600 dark:border-gray-700">{isArabic ? 'دخول' : 'Sign In'}</Link>
+              <Link to="/signup" className="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700">{isArabic ? 'حساب جديد' : 'Sign Up'}</Link>
             </div>
           ))}
-          {/* Cart Icon */}
-          <Link to="/wishlist" className="relative hover:text-rose-500 transition" aria-label="Wishlist" title="Wishlist">
-            <Heart size={22} />
-            {wishlistItems.length > 0 && <span className="absolute -right-2 -top-2 rounded-full bg-rose-500 px-1.5 py-0.5 text-xs font-bold text-white">{wishlistItems.length}</span>}
+          <Link to="/wishlist" aria-label={isArabic ? 'المفضلة' : 'Wishlist'} title={isArabic ? 'المفضلة' : 'Wishlist'} className="nav-icon relative">
+            <Heart size={21} />
+            {wishlistItems.length > 0 && <span className="nav-count bg-rose-500">{wishlistItems.length}</span>}
           </Link>
-          <Link
-            to="/cart"
-            className="relative hover:text-indigo-500 transition"
-            aria-label="Cart"
-          >
-            <ShoppingCart size={22} />
-            
-            {totalItems > 0 && (
-              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
-                {totalItems}
-              </span>
-            )}
+          <Link to="/cart" aria-label={isArabic ? 'السلة' : 'Cart'} title={isArabic ? 'السلة' : 'Cart'} className="nav-icon relative">
+            <ShoppingCart size={21} />
+            {totalItems > 0 && <span className="nav-count bg-red-500">{totalItems}</span>}
           </Link>
-
-          {/* Language Toggle */}
-          <button
-            type="button"
-            onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')}
-            className="inline-flex items-center gap-1 rounded-lg p-2 text-sm font-semibold hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-gray-800 transition"
-            aria-label={language === 'ar' ? 'Switch to English' : 'التبديل إلى العربية'}
-            title={language === 'ar' ? 'English' : 'العربية'}
-          >
-            <Languages size={20} />
-            <span>{language === 'ar' ? 'EN' : 'ع'}</span>
+          <button type="button" onClick={() => setLanguage(isArabic ? 'en' : 'ar')} className="language-toggle" aria-label={isArabic ? 'Switch to English' : 'التبديل إلى العربية'} title={isArabic ? 'English' : 'العربية'}>
+            {isArabic ? 'EN' : 'AR'}
           </button>
-
-          {/* Theme Toggle */}
-          <button onClick={toggleTheme} className="rounded-lg p-2 hover:bg-indigo-50 hover:text-indigo-400 dark:hover:bg-gray-800 transition" aria-label="Toggle theme" title="Toggle theme">
-            {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+          <button type="button" onClick={toggleTheme} className="nav-icon" aria-label={isArabic ? 'تغيير المظهر' : 'Toggle theme'} title={isArabic ? 'تغيير المظهر' : 'Toggle theme'}>
+            {darkMode ? <Sun size={21} /> : <Moon size={21} />}
           </button>
-
-          {/* Mobile Menu Toggle */}
-          <button className="md:hidden" onClick={toggleMenu}>
-            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          <button type="button" className="nav-icon md:hidden" onClick={() => setIsMenuOpen((value) => !value)} aria-label={isArabic ? 'القائمة' : 'Menu'}>
+            {isMenuOpen ? <X size={23} /> : <Menu size={23} />}
           </button>
-
         </div>
       </div>
 
-      {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden px-4 pt-2 pb-4 space-y-3 bg-white dark:bg-gray-900 shadow-inner border-t border-gray-200 dark:border-gray-700 transition-all duration-200">
-          <div className="flex flex-col space-y-3 text-sm font-medium">
-            {navLinks}
+        <div className="border-t border-gray-100 bg-white px-5 py-4 shadow-lg dark:border-gray-800 dark:bg-gray-900 md:hidden">
+          <div className="flex flex-col gap-1">
+            {links.map((item) => <Link key={item.to} to={item.to} onClick={closeMenu} className={`rounded-lg px-3 py-3 text-sm font-semibold transition hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-gray-800 ${active(item.to) ? 'bg-indigo-50 text-indigo-600 dark:bg-gray-800 dark:text-indigo-400' : ''}`}>{isArabic ? item.ar : item.en}</Link>)}
           </div>
-          {!isLoading && !user && <div className="flex flex-col gap-2 border-t border-gray-200 pt-3 dark:border-gray-700">
-            <Link to="/signin" onClick={closeMenu} className="rounded-lg border border-gray-300 px-4 py-2 dark:border-gray-700">Sign In</Link>
-            <Link to="/signup" onClick={closeMenu} className="rounded-lg bg-indigo-600 px-4 py-2 text-white">Sign Up</Link>
+          {!isLoading && !user && <div className="mt-3 flex gap-2 border-t border-gray-100 pt-3 dark:border-gray-800">
+            <Link to="/signin" onClick={closeMenu} className="flex-1 rounded-lg border border-gray-200 px-3 py-2 text-center text-sm font-semibold dark:border-gray-700">{isArabic ? 'تسجيل الدخول' : 'Sign In'}</Link>
+            <Link to="/signup" onClick={closeMenu} className="flex-1 rounded-lg bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white">{isArabic ? 'إنشاء حساب' : 'Sign Up'}</Link>
           </div>}
-          {/* <div className="flex flex-col mt-4 space-y-2">
-            <Link
-              to="/signin"
-              onClick={closeMenu}
-              className="w-full px-4 py-2 border rounded border-gray-300 text-center text-gray-900 bg-white hover:bg-gray-100 dark:border-gray-700 dark:text-gray-100 dark:bg-gray-900 dark:hover:bg-gray-800 transition"
-            >
-              Sign In
-            </Link>
-            <Link
-              to="/signup"
-              onClick={closeMenu}
-              className="w-full px-4 py-2 rounded text-center bg-indigo-600 text-white hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-600 transition"
-            >
-              Sign Up
-            </Link>
-          </div> */}
         </div>
       )}
     </nav>

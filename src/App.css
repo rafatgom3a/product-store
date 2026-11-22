@@ -1,0 +1,12 @@
+
+
+/* StoreHub navigation */
+.storehub-navbar { direction: inherit; }
+.nav-icon { position: relative; display: inline-flex; width: 40px; height: 40px; align-items: center; justify-content: center; border-radius: 11px; color: inherit; transition: background-color .2s ease, color .2s ease; }
+.nav-icon:hover { background: rgba(99,102,241,.09); color: #6366f1; }
+.nav-count { position: absolute; inset-block-start: -2px; inset-inline-end: -3px; min-width: 18px; height: 18px; padding: 0 4px; display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; color: white; font-size: 10px; font-weight: 700; line-height: 1; }
+.language-toggle { min-width: 40px; height: 36px; padding: 0 9px; border: 1px solid #e5e7eb; border-radius: 10px; font-size: 13px; font-weight: 800; letter-spacing: .03em; transition: .2s ease; }
+.language-toggle:hover { border-color: #a5b4fc; background: rgba(99,102,241,.08); color: #4f46e5; }
+.dark .language-toggle { border-color: #374151; }
+.dark .language-toggle:hover { border-color: #6366f1; }
+@media (max-width: 420px) { .storehub-navbar .min-h-\[76px\] { min-height: 68px; } .nav-icon { width: 35px; height: 35px; } .language-toggle { min-width: 36px; height: 34px; } }
