@@ -23,7 +23,7 @@ const translations = {
   ,', we’ve been driven by a passion for quality and innovation. Whether you’re searching for daily essentials or exclusive finds, we work hard to bring the best right to your doorstep.':', نعمل بشغف من أجل الجودة والابتكار. سواء كنت تبحث عن احتياجاتك اليومية أو عن منتجات حصرية، نبذل جهدنا لتقديم الأفضل حتى باب منزلك.'
   ,', we’re driven by a passion for quality and innovation. Whether you’re searching for daily essentials or exclusive finds, we work hard to bring the best right to your doorstep.':', نعمل بشغف من أجل الجودة والابتكار. سواء كنت تبحث عن احتياجاتك اليومية أو عن منتجات حصرية، نبذل جهدنا لتقديم الأفضل حتى باب منزلك.'
   ,'Thank you for trusting us — your satisfaction is our top priority. We’re constantly growing, improving, and striving to exceed your expectations.':'شكرًا لثقتك بنا؛ رضاك هو أولويتنا. نواصل التطور والتحسين ونسعى دائمًا إلى تجاوز توقعاتك.'
-  ,'Thank you for trusting us — your satisfaction is our top priority. We're constantly growing, improving, and striving to exceed your expectations.':'شكرًا لثقتك بنا؛ رضاك هو أولويتنا. نواصل التطور والتحسين ونسعى دائمًا إلى تجاوز توقعاتك.'
+  ,"Thank you for trusting us — your satisfaction is our top priority. We're constantly growing, improving, and striving to exceed your expectations.":'شكرًا لثقتك بنا؛ رضاك هو أولويتنا. نواصل التطور والتحسين ونسعى دائمًا إلى تجاوز توقعاتك.'
 
 };
 
